@@ -10,6 +10,7 @@ https://blog-react-gamma-seven.vercel.app/
 First, run the development server:
 
 ```bash
+npm init
 npm run dev
 ```
 
