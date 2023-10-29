@@ -1,4 +1,5 @@
 
+![Screenshot from 2023-10-29 10-06-16](https://github.com/helloivankorGit/blog_react/assets/72932438/4b57ec3a-290a-410e-a7a5-5fe16aafd2a0)
 
 ## Project preview
 
