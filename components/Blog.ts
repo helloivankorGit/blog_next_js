@@ -54,7 +54,7 @@ export const Ul = styled.ul`
     padding: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 26px;
     margin-top: 30px;
 `;
 
