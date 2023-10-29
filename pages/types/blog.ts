@@ -1,4 +1,4 @@
-export interface BlogPost {
+export default interface BlogPost {
   user_id: number;
   title: string;
   content_text: string;
