@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import ThemeSwitcher from '../src/app/ThemeSwitcher';
 import axios from 'axios';
 import Link from 'next/link';
-import { BlogPost } from './types/blog';
+import { BlogPost } from '../components/types/blog';
 
 import {
   Container,

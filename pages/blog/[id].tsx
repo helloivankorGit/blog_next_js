@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import ThemeSwitcher from '../../src/app/ThemeSwitcher';
 import axios from 'axios';
-import { BlogPost } from '../types/blog';
+import { BlogPost } from '../../components/types/blog';
 
 import {
   Container,
