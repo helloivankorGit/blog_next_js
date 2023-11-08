@@ -1,72 +1,62 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import ThemeSwitcher from '../src/app/ThemeSwitcher';
+// SummaryPage.tsx
+
+import React, { useMemo } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { BlogPost } from '../components/types/blog';
+import { Container, Title, SelectContainer, Select, Ul, Li, Img, PostTitle } from '../components/Blog';
+import ThemeSwitcher from '../src/app/ThemeSwitcher';
 
-import {
-  Container,
-  Title,
-  SelectContainer,
-  Select,
-  Ul,
-  Li,
-  Img,
-  PostTitle
-} from '../components/Blog';
+// This function would be outside your component
+export async function getStaticProps() {
+  try {
+    const apiUrl = 'https://api.slingacademy.com/v1/sample-data/blog-posts?offset=5&limit=30';
+    const response = await axios.get(apiUrl);
+    return { props: { initialBlogPosts: response.data.blogs } };
+  } catch (error) {
+    return { props: { error: error.message } };
+  }
+}
 
-const apiUrl = 'https://api.slingacademy.com/v1/sample-data/blog-posts?offset=5&limit=30';
-
-const SummaryPage: React.FC = () => {
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
+// Adjust your component to accept these props
+const SummaryPage: React.FC<{ initialBlogPosts: BlogPost[], error?: string }> = ({ initialBlogPosts, error }) => {
   const [sortOption, setSortOption] = useState('alphabetical');
   const [filterOption, setFilterOption] = useState('all');
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await axios.get(apiUrl);
-        setBlogPosts(response.data.blogs);
-        setLoading(false);
-      } catch (error) {
-        setError(error instanceof Error ? error : new Error("An error occurred"));
-        setLoading(false);
-      }
-    }
+  // Memoize the sorting and filtering
+  const filteredAndSortedPosts = useMemo(() => {
+    return initialBlogPosts
+      .filter((post) => filterOption === 'all' || post.category === filterOption)
+      .sort((a, b) => {
+        if (sortOption === 'date') {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        } else if (sortOption === 'category') {
+          return a.category.localeCompare(b.category);
+        } else {
+          return a.title.localeCompare(b.title);
+        }
+      });
+  }, [initialBlogPosts, sortOption, filterOption]);
 
-    fetchData();
-  }, []);
+  // Handle select changes
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSortOption(e.target.value);
+  };
 
-  if (loading) {
-    return <div className='loader'></div>;
-  }
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilterOption(e.target.value);
+  };
 
   if (error) {
     return (
       <div>
         <h1>Error</h1>
-        <p>{error.message}</p>
+        <p>{error}</p>
       </div>
     );
   }
-
-  const filteredAndSortedPosts = blogPosts
-    .filter((post) => filterOption === 'all' || post.category === filterOption)
-    .sort((a, b) => {
-      if (sortOption === 'date') {
-        const dateA = new Date(a.created_at).getTime();
-        const dateB = new Date(b.created_at).getTime();
-        return dateB - dateA;
-      } else if (sortOption === 'category') {
-        return a.category.localeCompare(b.category);
-      } else {
-        return a.title.localeCompare(b.title);
-      }
-    });
 
   return (
     <Container>
@@ -74,13 +64,13 @@ const SummaryPage: React.FC = () => {
       <Title>Blog</Title>
 
       <SelectContainer>
-        <Select onChange={(e) => setSortOption(e.target.value)}>
+        <Select onChange={handleSortChange}>
           <option value="alphabetical">Alphabetical</option>
           <option value="date">Date</option>
           <option value="category">Category</option>
         </Select>
 
-        <Select onChange={(e) => setFilterOption(e.target.value)}>
+        <Select onChange={handleFilterChange}>
           <option value="all">All Categories</option>
           <option value="love">Love</option>
           <option value="math">Math</option>
@@ -92,8 +82,10 @@ const SummaryPage: React.FC = () => {
         {filteredAndSortedPosts.map((post) => (
           <Li key={post.id}>
             <Link href={`/blog/${post.id}`}>
-              <Img src={post.photo_url} alt={post.title} />
-              <PostTitle>{post.title}</PostTitle>
+              <a> {/* Ensure the anchor tag for accessibility */}
+                <Img src={post.photo_url} alt={post.title} />
+                <PostTitle>{post.title}</PostTitle>
+              </a>
             </Link>
           </Li>
         ))}
